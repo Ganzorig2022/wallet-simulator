@@ -14,7 +14,7 @@ export function SimpleDropdown({
 	options,
 	onChange,
 }: {
-	label: string;
+	label?: string;
 	value: string;
 	options: string[];
 	onChange: (v: string) => void;

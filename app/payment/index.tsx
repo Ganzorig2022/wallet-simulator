@@ -276,7 +276,9 @@ export default function PaymentScreen() {
 							value={amount}
 							editable={amountEditable}
 							keyboardType="numeric"
-							onChangeText={(t) => setAmount(formatAmount(t))}
+							onChangeText={(t: any) =>
+								setAmount(formatAmount(t))
+							}
 							error={fieldErrors.amount}
 							suffix={invoice.currency_code ?? "MNT"}
 						/>
@@ -329,7 +331,7 @@ export default function PaymentScreen() {
 				{/* FOOTER BUTTON */}
 				<View style={styles.footer}>
 					<CustomButton
-						text={invoice.payment_button_text ?? "Гүйлгээ хийх"}
+						text={"Төлөх"}
 						onPress={handleSubmitPayment}
 						loading={isSubmitting}
 					/>

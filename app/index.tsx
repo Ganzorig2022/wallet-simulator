@@ -1,14 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-	Pressable,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { SimpleDropdown } from "../components/simple-dropdown";
 import BANKS from "../lib/constants/banks";
@@ -16,9 +9,9 @@ import { useConfigStore } from "../lib/stores/config";
 import { usePaymentStore } from "../lib/stores/payment";
 
 const ENV_TITLE_MAP: Record<string, string> = {
-	dev: "Environment: Dev",
-	sandbox: "Environment: Sandbox",
-	prod2: "Environment: Prod2",
+	dev: "Dev",
+	sandbox: "Sandbox",
+	prod2: "Prod 2",
 };
 
 export default function HomeScreen() {
@@ -28,103 +21,52 @@ export default function HomeScreen() {
 		environment,
 		bankCodeRequired,
 		bankCode,
-		langCode,
 		saveConfig,
 		initiateConfig,
 		setEnvironment,
-		resetConfig, // still available if you want a “clear simulator” button later
 	} = useConfigStore();
 
-	const { refresh, loadInitial } = usePaymentStore();
+	const { loadInitial } = usePaymentStore();
 
-	// --------------------------------------------
-	// LOCAL FORM STATE (INLINE CONFIG)
-	// --------------------------------------------
 	const [bankInput, setBankInput] = useState("");
-	const [langInput, setLangInput] = useState("MON");
 	const [setupError, setSetupError] = useState("");
-
-	// Build BANK dropdown options from BANKS constant
+	const envLabel = ENV_TITLE_MAP[environment] ?? "";
+	// BANK OPTIONS
 	const bankOptions = useMemo(() => {
 		return Object.entries(BANKS).map(([code, names]) => {
-			// names.MON might be undefined for some; fallback to ENG
-			const labelSource: any = names;
-			const displayName =
-				labelSource?.MON || labelSource?.ENG || String(code);
-			return `${code} · ${displayName}`;
+			const nm: any = names;
+			return `${code} · ${nm.MON || nm.ENG}`;
 		});
 	}, []);
 
-	// Currently selected option string for dropdown
 	const selectedBankOption = useMemo(() => {
 		if (!bankInput) return "";
-		const codeString = String(bankInput);
-		const match = bankOptions.find((opt) => opt.startsWith(codeString));
-		return match ?? "";
+		return bankOptions.find((o) => o.startsWith(bankInput)) ?? "";
 	}, [bankInput, bankOptions]);
 
 	useEffect(() => {
 		setBankInput(bankCode ?? "");
-		setLangInput(langCode ?? "MON");
-	}, [bankCode, langCode]);
+	}, [bankCode]);
 
 	useEffect(() => {
 		if (!bankCodeRequired) loadInitial();
 	}, [bankCodeRequired]);
 
-	// --------------------------------------------
-	// SAVE LOGIC (INLINE CONFIG)
-	// --------------------------------------------
-	const handleInlineSave = async () => {
-		setSetupError("");
-
-		if (!bankInput.trim()) {
-			setSetupError("BANK CODE шаардлагатай!");
-			return;
-		}
-
-		await saveConfig({
-			bank_code: bankInput.trim(),
-			lang_code: langInput.trim(),
-		});
-
-		alert("Амжилттай хадгалагдлаа");
-
-		await initiateConfig();
-	};
-
-	// --------------------------------------------
-	// INLINE CONFIG UI (WHEN BANK CODE IS MISSING)
-	// --------------------------------------------
+	// INITIAL CONFIG SCREEN
 	if (bankCodeRequired) {
 		return (
-			<ScrollView style={styles.setupScrollContainer}>
+			<ScrollView style={styles.setupContainer}>
 				<Text style={styles.setupTitle}>Анхны тохиргоо</Text>
 
 				<View style={styles.setupCard}>
-					{/* BANK CODE DROPDOWN (from BANKS constant) */}
 					<SimpleDropdown
 						label="BANK CODE сонгох"
 						value={selectedBankOption}
 						options={bankOptions}
-						onChange={(option) => {
-							// option pattern: "050000 · Khanbank"
-							const code = option.split(" ")[0];
-							setBankInput(code);
+						onChange={(opt) => {
+							setBankInput(opt.split(" ")[0]);
 							if (setupError) setSetupError("");
 						}}
-					/>
-
-					{/* LANG CODE INPUT */}
-					<Text style={[styles.inputLabel, { marginTop: 18 }]}>
-						LANG CODE
-					</Text>
-					<TextInput
-						value={langInput}
-						onChangeText={setLangInput}
-						style={styles.setupInput}
-						placeholder="MON / ENG"
-						placeholderTextColor="#9CA3AF"
 					/>
 
 					{setupError ? (
@@ -132,209 +74,160 @@ export default function HomeScreen() {
 					) : null}
 
 					<Pressable
-						style={styles.setupButton}
-						onPress={handleInlineSave}>
-						<Text style={styles.setupButtonText}>Хадгалах</Text>
+						style={styles.saveButton}
+						onPress={async () => {
+							if (!bankInput.trim()) {
+								setSetupError("BANK CODE шаардлагатай!");
+								return;
+							}
+
+							await saveConfig({
+								bank_code: bankInput.trim(),
+								lang_code: "MON",
+							});
+							await initiateConfig();
+						}}>
+						<Text style={styles.saveButtonText}>Хадгалах</Text>
 					</Pressable>
 				</View>
 			</ScrollView>
 		);
 	}
 
-	// --------------------------------------------
 	// MAIN UI
-	// --------------------------------------------
 	return (
 		<View style={styles.container}>
 			{/* HEADER */}
-			<View style={styles.modernHeader}>
-				<View>
-					<Text style={styles.appTitle}>QPay Simulator</Text>
-					<View style={styles.envBadge}>
-						<Text style={styles.envBadgeText}>
-							{ENV_TITLE_MAP[environment]}
-						</Text>
-					</View>
-				</View>
+			<View style={styles.header}>
+				<Text style={styles.headerTitle}>
+					QPay{" "}
+					<Text style={styles.headerTitle}>
+						QPay Simulator ({envLabel})
+					</Text>
+				</Text>
 
 				<Pressable
 					onPress={() => router.push("/config")}
-					style={styles.settingsButton}>
+					style={styles.headerIcon}>
 					<Ionicons
 						name="settings-outline"
 						size={22}
-						color="#111827"
+						color="#111"
 					/>
 				</Pressable>
 			</View>
 
-			{/* ENV DROPDOWN */}
-			<View style={styles.envDropdownWrapper}>
+			{/* ENV SELECT */}
+			<View style={styles.block}>
+				<Text style={styles.blockLabel}>Орчин сонгох</Text>
 				<SimpleDropdown
-					label="Орчин сонгох"
 					value={environment}
 					options={["dev", "sandbox", "prod2"]}
 					onChange={(env) => setEnvironment(env as any)}
 				/>
 			</View>
 
-			{/* FAB */}
-			<Pressable
-				onPress={() => router.push("/qr")}
-				style={styles.fab}>
-				<Ionicons
-					name="qr-code-outline"
-					size={30}
-					color="#FFFFFF"
-				/>
-			</Pressable>
+			{/* BANK INFO */}
+			<View style={styles.block}>
+				<Text style={styles.blockLabel}>Bank</Text>
+				<Text style={styles.blockValue}>
+					{bankCode} — {BANKS[bankCode as any]?.MON || "Unknown"}
+				</Text>
+			</View>
+
+			{/* ACTIONS */}
+			<View style={styles.block}>
+				<Pressable
+					style={styles.qrButton}
+					onPress={() => router.push("/qr")}>
+					<Ionicons
+						name="qr-code-outline"
+						size={26}
+						color="#FFF"
+					/>
+					<Text style={styles.qrButtonText}>QR уншуулах</Text>
+				</Pressable>
+			</View>
 		</View>
 	);
 }
 
-// -------------------------------------------------------
-// STYLES — COMBINED TOKI + MODERN FINTECH
-// -------------------------------------------------------
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: "#F4F5F7",
+	container: { flex: 1, backgroundColor: "#F8F9FB", paddingHorizontal: 18 },
+
+	header: {
+		paddingTop: 55,
+		paddingBottom: 16,
+		flexDirection: "row",
+		justifyContent: "space-between",
+	},
+	headerTitle: { fontSize: 22, fontWeight: "700", color: "#111" },
+	headerIcon: { padding: 8 },
+
+	block: {
+		marginTop: 20,
+		backgroundColor: "#FFF",
+		padding: 16,
+		borderRadius: 14,
+		shadowColor: "#000",
+		shadowOpacity: 0.06,
+		shadowRadius: 8,
+		elevation: 2,
+	},
+	blockLabel: {
+		fontSize: 13,
+		fontWeight: "600",
+		color: "#6B7280",
+		marginBottom: 8,
+	},
+	blockValue: {
+		fontSize: 16,
+		fontWeight: "600",
+		color: "#111",
 	},
 
-	// INLINE SETUP
+	qrButton: {
+		flexDirection: "row",
+		gap: 10,
+		backgroundColor: "#2563EB",
+		paddingVertical: 14,
+		borderRadius: 10,
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	qrButtonText: {
+		color: "#FFF",
+		fontWeight: "600",
+		fontSize: 16,
+	},
 
-	setupScrollContainer: {
+	// Initial config
+	setupContainer: {
 		flexGrow: 1,
 		paddingTop: 80,
 		paddingHorizontal: 24,
 		paddingBottom: 40,
-		backgroundColor: "#FFFFFF",
-	},
-	setupContainer: {
-		flex: 1,
-		paddingTop: 80,
-		paddingHorizontal: 24,
-		backgroundColor: "#FFFFFF",
+		backgroundColor: "#FFF",
 	},
 	setupTitle: {
 		fontSize: 22,
 		fontWeight: "700",
-		color: "#111827",
 		textAlign: "center",
 		marginBottom: 26,
 	},
 	setupCard: {
-		backgroundColor: "#FFFFFF",
 		padding: 20,
 		borderRadius: 16,
-		shadowColor: "#000",
-		shadowOpacity: 0.06,
-		shadowRadius: 8,
+		backgroundColor: "#FFF",
 		elevation: 3,
 	},
-	inputLabel: {
-		fontSize: 13,
-		color: "#6B7280",
-		marginBottom: 6,
-	},
-	setupInput: {
-		borderWidth: 1,
-		borderColor: "#D1D5DB",
-		borderRadius: 8,
-		paddingVertical: 10,
-		paddingHorizontal: 12,
-		fontSize: 15,
-		color: "#111827",
-	},
-	setupError: {
-		color: "#DC2626",
-		marginTop: 6,
-		fontSize: 13,
-	},
-	setupButton: {
+	setupError: { color: "#DC2626", marginTop: 6 },
+	saveButton: {
 		marginTop: 20,
 		backgroundColor: "#2563EB",
 		paddingVertical: 12,
 		borderRadius: 10,
 		alignItems: "center",
 	},
-	setupButtonText: {
-		color: "#FFFFFF",
-		fontWeight: "600",
-		fontSize: 15,
-	},
-
-	// MAIN HOME UI
-	modernHeader: {
-		backgroundColor: "#FFFFFF",
-		paddingTop: 52,
-		paddingHorizontal: 20,
-		paddingBottom: 22,
-		borderBottomLeftRadius: 22,
-		borderBottomRightRadius: 22,
-		flexDirection: "row",
-		justifyContent: "space-between",
-		shadowColor: "#000",
-		shadowOpacity: 0.06,
-		shadowRadius: 8,
-		elevation: 3,
-	},
-	appTitle: {
-		fontSize: 22,
-		fontWeight: "700",
-		color: "#111827",
-	},
-	envBadge: {
-		marginTop: 6,
-		backgroundColor: "#EEF2FF",
-		paddingHorizontal: 10,
-		paddingVertical: 4,
-		borderRadius: 8,
-		alignSelf: "flex-start",
-	},
-	envBadgeText: {
-		fontSize: 12,
-		color: "#4338CA",
-		fontWeight: "600",
-	},
-	settingsButton: { padding: 8 },
-
-	envDropdownWrapper: {
-		marginTop: 16,
-		marginLeft: 16,
-		marginRight: 16,
-		alignItems: "center",
-	},
-
-	paymentCard: {
-		backgroundColor: "#FFFFFF",
-		marginHorizontal: 16,
-		marginBottom: 12,
-		borderRadius: 14,
-		paddingVertical: 6,
-		paddingHorizontal: 8,
-		shadowColor: "#000",
-		shadowOpacity: 0.05,
-		shadowRadius: 6,
-		elevation: 2,
-	},
-
-	footerLoading: { paddingVertical: 20 },
-
-	fab: {
-		position: "absolute",
-		bottom: 28,
-		right: 22,
-		width: 62,
-		height: 62,
-		borderRadius: 31,
-		backgroundColor: "#2563EB",
-		alignItems: "center",
-		justifyContent: "center",
-		shadowColor: "#000",
-		shadowOpacity: 0.22,
-		shadowOffset: { width: 0, height: 4 },
-		shadowRadius: 8,
-		elevation: 6,
-	},
+	saveButtonText: { color: "#FFF", fontWeight: "600", fontSize: 15 },
 });

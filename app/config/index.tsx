@@ -1,14 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-	Pressable,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextInput,
-	View
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { SimpleDropdown } from "../../components/simple-dropdown";
 import BANKS from "../../lib/constants/banks";
@@ -16,33 +9,29 @@ import { useConfigStore } from "../../lib/stores/config";
 
 export default function ConfigScreen() {
 	const router = useRouter();
-
-	const { bankCode, langCode, saveConfig, initiateConfig } = useConfigStore();
+	const { bankCode, saveConfig, initiateConfig } = useConfigStore();
 
 	const [formBankCode, setFormBankCode] = useState("");
-	const [formLangCode, setFormLangCode] = useState("MON");
 	const [error, setError] = useState("");
 
-	// Build dropdown options: "050000 · Хаан банк"
+	// Build "050000 · Хаан банк"
 	const bankOptions = useMemo(() => {
 		return Object.entries(BANKS).map(([code, names]) => {
-			const n: any = names;
-			const label = n?.MON || n?.ENG || String(code);
-			return `${code} · ${label}`;
+			const nm: any = names;
+			return `${code} · ${nm.MON || nm.ENG}`;
 		});
 	}, []);
 
-	// Map selected bank code → matching dropdown label
+	// Dropdown selected label
 	const selectedBankLabel = useMemo(() => {
 		if (!formBankCode) return "";
-		return bankOptions.find((opt) => opt.startsWith(formBankCode)) ?? "";
+		return bankOptions.find((o) => o.startsWith(formBankCode)) ?? "";
 	}, [formBankCode, bankOptions]);
 
-	// Load initial config into form
+	// Initial load
 	useEffect(() => {
 		setFormBankCode(bankCode ?? "");
-		setFormLangCode(langCode ?? "MON");
-	}, [bankCode, langCode]);
+	}, [bankCode]);
 
 	// -----------------------------
 	// SAVE CONFIG
@@ -57,18 +46,18 @@ export default function ConfigScreen() {
 
 		await saveConfig({
 			bank_code: formBankCode.trim(),
-			lang_code: formLangCode.trim(),
+			lang_code: "MON", // Always default now
 		});
 
 		alert("Амжилттай хадгалагдлаа");
 
 		await initiateConfig();
-		router.canGoBack();
+		router.back();
 	};
 
 	return (
 		<View style={styles.screen}>
-			{/* HEADER AREA */}
+			{/* HEADER */}
 			<View style={styles.header}>
 				<Pressable
 					style={styles.headerBack}
@@ -82,38 +71,26 @@ export default function ConfigScreen() {
 
 				<Text style={styles.headerTitle}>Тохиргоо</Text>
 
-				{/* Placeholder to center the title */}
+				{/* Spacer to center the title */}
 				<View style={{ width: 40 }} />
 			</View>
 
-			{/* SCROLL CONTENT */}
+			{/* CONTENT */}
 			<ScrollView
 				style={styles.container}
 				contentContainerStyle={{ paddingBottom: 40 }}
 				keyboardShouldPersistTaps="handled">
-				{/* BANK CODE DROPDOWN */}
+				{/* BANK CODE */}
 				<View style={styles.fieldContainer}>
 					<SimpleDropdown
 						label="BANK CODE"
 						value={selectedBankLabel}
 						options={bankOptions}
-						onChange={(option) => {
-							const code = option.split(" ")[0];
+						onChange={(opt) => {
+							const code = opt.split(" ")[0];
 							setFormBankCode(code);
 							if (error) setError("");
 						}}
-					/>
-				</View>
-
-				{/* LANG CODE */}
-				<View style={styles.fieldContainer}>
-					<Text style={styles.label}>LANG CODE</Text>
-					<TextInput
-						value={formLangCode}
-						onChangeText={setFormLangCode}
-						style={styles.input}
-						placeholder="MON / ENG"
-						placeholderTextColor="#9CA3AF"
 					/>
 				</View>
 
@@ -161,51 +138,16 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 		flex: 1,
 	},
+
 	container: {
 		flex: 1,
-		paddingTop: 80,
+		paddingTop: 40,
 		paddingHorizontal: 24,
 		backgroundColor: "#FFFFFF",
 	},
 
-	// Back button
-	backButton: {
-		position: "absolute",
-		top: 40,
-		left: 16,
-		padding: 8,
-		borderRadius: 50,
-		backgroundColor: "#F4F5F7",
-		zIndex: 10,
-	},
-
-	title: {
-		fontSize: 20,
-		fontWeight: "700",
-		marginBottom: 28,
-		textAlign: "center",
-		color: "#111827",
-	},
-
 	fieldContainer: {
 		marginBottom: 18,
-	},
-
-	label: {
-		marginBottom: 6,
-		fontSize: 13,
-		color: "#6B7280",
-	},
-
-	input: {
-		borderWidth: 1,
-		borderColor: "#D1D5DB",
-		borderRadius: 8,
-		paddingHorizontal: 12,
-		paddingVertical: 10,
-		fontSize: 15,
-		backgroundColor: "#FFFFFF",
-		color: "#111827",
 	},
 
 	error: {
