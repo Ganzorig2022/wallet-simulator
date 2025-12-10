@@ -35,6 +35,24 @@ export async function decryptQrRequest(
 		// ❌ NETWORK ERROR — result.isSuccess = false
 		// -------------------------------------------
 		if (!result.isSuccess) {
+			// ❌ CASE 1A — SERVER RETURNED HTML (Nginx 404, 502, etc.)
+			if (result.error === "SERVER_RETURNED_HTML") {
+				return {
+					error: true,
+					code: "ENDPOINT_HTML_ERROR",
+					message: `Сервер алдаатай HTML хуудас буцаалаа. Та орчноо зөв сонгоно уу.`,
+				};
+			}
+
+			// ❌ CASE 1B — INVALID JSON RESPONSE
+			if (result.error === "INVALID_JSON") {
+				return {
+					error: true,
+					code: "INVALID_JSON",
+					message: "Серверээс буруу бүтэцтэй өгөгдөл ирлээ.",
+				};
+			}
+
 			// axios error + QPay error may both exist
 			const qpayError = result.error?.response?.data;
 
