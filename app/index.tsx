@@ -100,7 +100,6 @@ export default function HomeScreen() {
 			{/* HEADER */}
 			<View style={styles.header}>
 				<Text style={styles.headerTitle}>
-					QPay{" "}
 					<Text style={styles.headerTitle}>
 						QPay Simulator ({envLabel})
 					</Text>

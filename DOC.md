@@ -1,33 +1,23 @@
-###
+### Build android for locally
 
 ```bash
-/app
-  _layout.tsx
-  index.tsx
-  /config
-    index.tsx
-  /payment
-    [id].tsx
-  /qr
-    index.tsx
+npx expo prebuild --platform android
+echo "sdk.dir=$HOME/Library/Android/sdk" > android/local.properties
 
-/lib
-  /api
-    client.ts
-  /stores
-    config.ts
-    payment.ts
-  /models
-    payment.ts
-    invoice.ts (later)
-  /utils
-    date.ts
-    storage.ts
-    device.ts
+npx expo-doctor
 
-/components
-  PaymentItem.tsx
-  DateRangePicker.tsx
-  EmptyState.tsx
-  CustomButton.tsx
+# Step 1. Choose bankcodes
+# Step 2. Choose environment
+# Step 3. local build
+eas build --local -p android --profile preview
 ```
+
+we need to handle this error properly: ERROR ❌ API ERROR:
+
+ <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
