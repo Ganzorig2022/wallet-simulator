@@ -1,3 +1,4 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -14,15 +15,12 @@ import { useConfigStore } from "../../lib/stores/config";
 export default function ConfigScreen() {
 	const router = useRouter();
 
-	// Zustand store
 	const { bankCode, langCode, saveConfig, initiateConfig } = useConfigStore();
 
-	// Local form state
 	const [formBankCode, setFormBankCode] = useState("");
 	const [formLangCode, setFormLangCode] = useState("");
 	const [error, setError] = useState("");
 
-	// load initial values
 	useEffect(() => {
 		setFormBankCode(bankCode ?? "");
 		setFormLangCode(langCode ?? "MON");
@@ -31,7 +29,7 @@ export default function ConfigScreen() {
 	const handleSave = async () => {
 		setError("");
 
-		if (!formBankCode || formBankCode.trim().length === 0) {
+		if (!formBankCode.trim()) {
 			setError("BANK CODE шаардлагатай!");
 			return;
 		}
@@ -41,19 +39,30 @@ export default function ConfigScreen() {
 			lang_code: formLangCode.trim(),
 		});
 
-		// mimic Flutter: show success message
 		alert("Амжилттай хадгалагдлаа");
 
-		// refresh + go back
 		await initiateConfig();
-		router.canGoBack();
+		router.back();
 	};
 
 	return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 			<View style={styles.container}>
+				{/* 🔙 TOKI FLOATING BACK BUTTON */}
+				<Pressable
+					style={styles.backButton}
+					onPress={() => router.back()}>
+					<Ionicons
+						name="chevron-back"
+						size={24}
+						color="#1A1A1A"
+					/>
+				</Pressable>
+
+				{/* TITLE */}
 				<Text style={styles.title}>Тохиргоо</Text>
 
+				{/* INPUT FIELDS */}
 				<View style={styles.fieldContainer}>
 					<Text style={styles.label}>BANK CODE</Text>
 					<TextInput
@@ -76,6 +85,7 @@ export default function ConfigScreen() {
 
 				{error ? <Text style={styles.error}>{error}</Text> : null}
 
+				{/* SAVE BUTTON */}
 				<Pressable
 					style={styles.button}
 					onPress={handleSave}>
@@ -89,45 +99,68 @@ export default function ConfigScreen() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		padding: 24,
+		paddingTop: 80,
+		paddingHorizontal: 24,
 		backgroundColor: "#FFFFFF",
 	},
+
+	// TOKI STYLE BACK BUTTON
+	backButton: {
+		position: "absolute",
+		top: 40,
+		left: 16,
+		padding: 8,
+		borderRadius: 50,
+		backgroundColor: "#F4F5F7",
+		zIndex: 10,
+	},
+
 	title: {
 		fontSize: 20,
 		fontWeight: "700",
-		marginBottom: 24,
+		marginBottom: 28,
+		textAlign: "center",
+		color: "#111827",
 	},
+
 	fieldContainer: {
-		marginBottom: 16,
+		marginBottom: 18,
 	},
+
 	label: {
 		marginBottom: 6,
-		color: "#444444",
-		fontSize: 14,
+		fontSize: 13,
+		color: "#6B7280",
 	},
+
 	input: {
+		borderWidth: 1,
+		borderColor: "#D1D5DB",
+		borderRadius: 8,
 		paddingHorizontal: 12,
 		paddingVertical: 10,
-		borderRadius: 8,
-		borderWidth: 1,
-		borderColor: "#CCCCCC",
-		fontSize: 16,
+		fontSize: 15,
+		backgroundColor: "#FFFFFF",
 	},
+
 	error: {
-		color: "red",
+		color: "#DC2626",
 		marginTop: 4,
 		marginBottom: 12,
+		fontSize: 13,
 	},
+
 	button: {
-		marginTop: 24,
-		backgroundColor: "#007AFF",
+		marginTop: 20,
+		backgroundColor: "#2563EB",
 		paddingVertical: 12,
-		borderRadius: 8,
+		borderRadius: 10,
 		alignItems: "center",
 	},
+
 	buttonText: {
 		color: "#FFFFFF",
 		fontWeight: "600",
-		fontSize: 16,
+		fontSize: 15,
 	},
 });

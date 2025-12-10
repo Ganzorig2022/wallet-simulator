@@ -7,3 +7,7 @@ export async function saveValue(key: string, value: string): Promise<void> {
 export async function getValue(key: string): Promise<string | null> {
   return SecureStore.getItemAsync(key);
 }
+
+export async function removeValue(key: string): Promise<void> {
+  await SecureStore.deleteItemAsync(key);
+}

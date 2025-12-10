@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export function SimpleDropdown({
 	label,
@@ -15,29 +15,34 @@ export function SimpleDropdown({
 	const [open, setOpen] = useState(false);
 
 	return (
-		<View style={styles.container}>
-			<Text style={styles.label}>{label}</Text>
+		<View style={styles.wrapper}>
+			{label ? <Text style={styles.label}>{label}</Text> : null}
 
 			<Pressable
-				style={styles.selector}
-				onPress={() => setOpen((prev) => !prev)}>
-				<Text style={styles.selectorText}>{value}</Text>
-				<Text style={styles.chevron}>▾</Text>
+				style={styles.inputBox}
+				onPress={() => setOpen(!open)}>
+				<Text style={styles.valueText}>{value || "Сонгох..."}</Text>
 			</Pressable>
 
 			{open && (
-				<View style={styles.menu}>
-					{options.map((opt) => (
-						<Pressable
-							key={opt}
-							style={styles.option}
-							onPress={() => {
-								setOpen(false);
-								onChange(opt);
-							}}>
-							<Text style={styles.optionText}>{opt}</Text>
-						</Pressable>
-					))}
+				<View style={styles.dropdownPanel}>
+					{/* 🔥 ONLY THIS AREA SCROLLS */}
+					<ScrollView
+						style={styles.scrollArea}
+						nestedScrollEnabled
+						showsVerticalScrollIndicator>
+						{options.map((opt, i) => (
+							<Pressable
+								key={i}
+								style={styles.optionRow}
+								onPress={() => {
+									onChange(opt);
+									setOpen(false);
+								}}>
+								<Text style={styles.optionText}>{opt}</Text>
+							</Pressable>
+						))}
+					</ScrollView>
 				</View>
 			)}
 		</View>
@@ -45,32 +50,51 @@ export function SimpleDropdown({
 }
 
 const styles = StyleSheet.create({
-	container: { width: "90%", marginBottom: 16 },
-	label: { fontSize: 14, color: "#555", marginBottom: 6, marginLeft: 4 },
-	selector: {
-		height: 44,
+	wrapper: {
+		width: "100%",
+		marginBottom: 20,
+	},
+	label: {
+		fontSize: 13,
+		color: "#6B7280",
+		marginBottom: 6,
+	},
+	inputBox: {
 		borderWidth: 1,
-		borderColor: "#ccc",
+		borderColor: "#D1D5DB",
 		borderRadius: 8,
+		paddingVertical: 12,
 		paddingHorizontal: 12,
-		backgroundColor: "#fff",
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
+		backgroundColor: "#FFFFFF",
 	},
-	selectorText: { fontSize: 16 },
-	chevron: { fontSize: 16, color: "#555" },
-	menu: {
-		marginTop: 4,
+	valueText: {
+		fontSize: 15,
+		color: "#111827",
+	},
+
+	dropdownPanel: {
+		marginTop: 6,
+		maxHeight: 240, // 🔥 Control scroll area height
 		borderWidth: 1,
-		borderColor: "#ddd",
+		borderColor: "#D1D5DB",
 		borderRadius: 8,
-		backgroundColor: "#fff",
-		overflow: "hidden",
+		backgroundColor: "#FFFFFF",
+		overflow: "hidden", // important
+		elevation: 4,
 	},
-	option: {
-		paddingVertical: 10,
-		paddingHorizontal: 14,
+
+	scrollArea: {
+		maxHeight: 240,
 	},
-	optionText: { fontSize: 16 },
+
+	optionRow: {
+		paddingVertical: 12,
+		paddingHorizontal: 12,
+		borderBottomWidth: 1,
+		borderColor: "#F3F4F6",
+	},
+	optionText: {
+		fontSize: 15,
+		color: "#111827",
+	},
 });
