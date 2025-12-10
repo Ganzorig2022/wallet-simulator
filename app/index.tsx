@@ -131,6 +131,7 @@ export default function HomeScreen() {
 			<View style={styles.block}>
 				<Text style={styles.blockLabel}>Bank</Text>
 				<Text style={styles.blockValue}>
+					{/* @ts-ignore */}
 					{bankCode} — {BANKS[bankCode as any]?.MON || "Unknown"}
 				</Text>
 			</View>

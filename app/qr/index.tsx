@@ -17,18 +17,16 @@ export default function QrScannerScreen() {
 		if (!permission?.granted) requestPermission();
 	}, [permission]);
 
-	// 🔥 Flutter initState() equivalent — auto-run mock QR once
-	useEffect(() => {
-		const mockQr =
-			"000201010211153127940496279404960002171000016465204821153034965802MN5904Test6011Ulaanbaatar62250721fIOQtKzreQsgpxMV3qqx36304305D";
+	// useEffect(() => {
+	// 	const mockQr =
+	// 		"000201010211153127940496279404960002171000016465204821153034965802MN5904Test6011Ulaanbaatar62250721fIOQtKzreQsgpxMV3qqx36304305D";
 
-		// Wait ~300ms so UI fully mounts (avoids race conditions)
-		const timer = setTimeout(() => {
-			handleQr(mockQr);
-		}, 300);
+	// 	const timer = setTimeout(() => {
+	// 		handleQr(mockQr);
+	// 	}, 300);
 
-		return () => clearTimeout(timer);
-	}, []);
+	// 	return () => clearTimeout(timer);
+	// }, []);
 
 	const handleQr = async (qrValue: string) => {
 		if (scanned) return;
