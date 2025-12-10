@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+	FlatList,
+	Modal,
+	Pressable,
+	StyleSheet,
+	Text,
+	View,
+} from "react-native";
 
 export function SimpleDropdown({
 	label,
@@ -10,55 +17,60 @@ export function SimpleDropdown({
 	label: string;
 	value: string;
 	options: string[];
-	onChange: (val: string) => void;
+	onChange: (v: string) => void;
 }) {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<View style={styles.wrapper}>
+		<View style={{ width: "100%" }}>
 			{label ? <Text style={styles.label}>{label}</Text> : null}
 
 			<Pressable
-				style={styles.inputBox}
-				onPress={() => setOpen(!open)}>
-				<Text style={styles.valueText}>{value || "Сонгох..."}</Text>
+				onPress={() => setOpen(true)}
+				style={styles.inputBox}>
+				<Text style={styles.inputText}>{value || "Сонгох..."}</Text>
 			</Pressable>
 
-			{open && (
-				<View style={styles.dropdownPanel}>
-					{/* 🔥 ONLY THIS AREA SCROLLS */}
-					<ScrollView
-						style={styles.scrollArea}
-						nestedScrollEnabled
-						showsVerticalScrollIndicator>
-						{options.map((opt, i) => (
+			{/* FULL-SCREEN CLOSABLE DROPDOWN */}
+			<Modal
+				visible={open}
+				transparent
+				animationType="fade">
+				{/* BACKDROP — captures outside press */}
+				<Pressable
+					style={styles.backdrop}
+					onPress={() => setOpen(false)}
+				/>
+
+				{/* DROPDOWN CONTAINER */}
+				<View style={styles.dropdown}>
+					<FlatList
+						data={options}
+						keyExtractor={(item, i) => `${item}-${i}`}
+						renderItem={({ item }) => (
 							<Pressable
-								key={i}
-								style={styles.optionRow}
+								style={styles.option}
 								onPress={() => {
-									onChange(opt);
+									onChange(item);
 									setOpen(false);
 								}}>
-								<Text style={styles.optionText}>{opt}</Text>
+								<Text style={styles.optionText}>{item}</Text>
 							</Pressable>
-						))}
-					</ScrollView>
+						)}
+					/>
 				</View>
-			)}
+			</Modal>
 		</View>
 	);
 }
 
 const styles = StyleSheet.create({
-	wrapper: {
-		width: "100%",
-		marginBottom: 20,
-	},
 	label: {
 		fontSize: 13,
 		color: "#6B7280",
 		marginBottom: 6,
 	},
+
 	inputBox: {
 		borderWidth: 1,
 		borderColor: "#D1D5DB",
@@ -67,32 +79,43 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 12,
 		backgroundColor: "#FFFFFF",
 	},
-	valueText: {
+
+	inputText: {
 		fontSize: 15,
 		color: "#111827",
 	},
 
-	dropdownPanel: {
-		marginTop: 6,
-		maxHeight: 240, // 🔥 Control scroll area height
-		borderWidth: 1,
-		borderColor: "#D1D5DB",
-		borderRadius: 8,
+	// FULLSCREEN BACKDROP
+	backdrop: {
+		position: "absolute",
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		backgroundColor: "rgba(0,0,0,0.15)",
+	},
+
+	// ACTUAL DROPDOWN BOX
+	dropdown: {
+		position: "absolute",
+		top: 150, // adjust if needed
+		left: 20,
+		right: 20,
+		maxHeight: 350,
 		backgroundColor: "#FFFFFF",
-		overflow: "hidden", // important
-		elevation: 4,
+		borderRadius: 12,
+		paddingVertical: 8,
+		shadowColor: "#000",
+		shadowOpacity: 0.15,
+		shadowRadius: 10,
+		elevation: 5,
 	},
 
-	scrollArea: {
-		maxHeight: 240,
-	},
-
-	optionRow: {
+	option: {
 		paddingVertical: 12,
-		paddingHorizontal: 12,
-		borderBottomWidth: 1,
-		borderColor: "#F3F4F6",
+		paddingHorizontal: 14,
 	},
+
 	optionText: {
 		fontSize: 15,
 		color: "#111827",
