@@ -17,16 +17,16 @@ export default function QrScannerScreen() {
 		if (!permission?.granted) requestPermission();
 	}, [permission]);
 
-	// useEffect(() => {
-	// 	const mockQr =
-	// 		"0002010102121531279404962794049600251211095258927540014A00000084300010108AGMOMNUB0220XDd4feEEPwLt5v_TMNYu52045331530349654031505802MN5907OYUTEST6011ULAANBAATAR62240720XDd4feEEPwLt5v_TMNYu7106QPP_QR78157345789484268267902228002016304D192";
+	useEffect(() => {
+		const mockQr =
+			"0002010102121531279404962794049600251211095258927540014A00000084300010108AGMOMNUB0220XDd4feEEPwLt5v_TMNYu52045331530349654031505802MN5907OYUTEST6011ULAANBAATAR62240720XDd4feEEPwLt5v_TMNYu7106QPP_QR78157345789484268267902228002016304D192";
 
-	// 	const timer = setTimeout(() => {
-	// 		handleQr(mockQr);
-	// 	}, 300);
+		const timer = setTimeout(() => {
+			handleQr(mockQr);
+		}, 300);
 
-	// 	return () => clearTimeout(timer);
-	// }, []);
+		return () => clearTimeout(timer);
+	}, []);
 
 	const handleQr = async (qrValue: string) => {
 		if (scanned) return;

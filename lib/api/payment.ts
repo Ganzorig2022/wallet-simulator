@@ -69,7 +69,8 @@ export async function decryptQrRequest(
 			return {
 				error: true,
 				code: "NETWORK_ERROR",
-				message: "Сервертэй холбогдох боломжгүй.",
+				message:
+					"Сервертэй холбогдох боломжгүй. Та утасныхаа интернет болон VPN-ээ асаана уу!",
 			};
 		}
 
