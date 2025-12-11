@@ -19,7 +19,7 @@ export default function QrScannerScreen() {
 
 	// useEffect(() => {
 	// 	const mockQr =
-	// 		"000201010211153127940496279404960002171000016465204821153034965802MN5904Test6011Ulaanbaatar62250721fIOQtKzreQsgpxMV3qqx36304305D";
+	// 		"0002010102121531279404962794049600251211095258927540014A00000084300010108AGMOMNUB0220XDd4feEEPwLt5v_TMNYu52045331530349654031505802MN5907OYUTEST6011ULAANBAATAR62240720XDd4feEEPwLt5v_TMNYu7106QPP_QR78157345789484268267902228002016304D192";
 
 	// 	const timer = setTimeout(() => {
 	// 		handleQr(mockQr);
@@ -34,6 +34,7 @@ export default function QrScannerScreen() {
 		setLoading(true);
 
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+		console.log("🔍 handleQr result:\n", qrValue);
 
 		try {
 			const invoice = await decryptQrRequest(qrValue);

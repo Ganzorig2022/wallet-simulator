@@ -44,6 +44,9 @@ export async function postRequest<T = any>(
 				? "1234kjsdfhKJDfskdjf"
 				: "1234";
 
+		console.log("🗂️ ENVIRONMENT:", useConfigStore.getState().environment);
+		console.log("🔑 BASIC:\n", username, password);
+
 		const token = Buffer.from(`${username}:${password}`).toString("base64");
 		const authorization = `Basic ${token}`;
 

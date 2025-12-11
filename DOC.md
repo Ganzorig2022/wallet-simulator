@@ -1,6 +1,10 @@
 ### Build android for locally
 
 ```bash
+emulator -list-avds # Pixel_8_Pro
+emulator -avd Pixel_8_Pro
+npm start
+
 npx expo prebuild --platform android
 echo "sdk.dir=$HOME/Library/Android/sdk" > android/local.properties
 
